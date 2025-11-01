@@ -1,0 +1,49 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cat {
+  id           Int       @id @default(autoincrement())
+  name         String
+  description  String?   // Коттун мүнөздөмөсү, опционалдуу
+  breed        String?   // Породасы
+  price        Int
+  age          Int
+  gender       String?   // "male" же "female"
+  imageUrl     String?   // сүрөт шилтемеси
+  isAvailable  Boolean   @default(true) // сатылып кеткен же жок
+  discount     Int?      // арзандатуу пайызы (%)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  favorites    Favorite[]
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String
+  email        String      @unique
+  password     String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  favorites    Favorite[]
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  catId     Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  cat       Cat      @relation(fields: [catId], references: [id])
+
+  @@unique([userId, catId]) 
+}
