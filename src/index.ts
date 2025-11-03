@@ -1,7 +1,6 @@
 import buildServer from "./app.js";
 
 const server = buildServer();
-
 const listenServer = () => {
   try {
     const PORT = process.env.PORT || 3000;
