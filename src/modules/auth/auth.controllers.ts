@@ -17,6 +17,7 @@ const register = async (req: Request, res: Response) => {
         message: "Бул Email колдонулуп жатат.",
       });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
@@ -26,15 +27,28 @@ const register = async (req: Request, res: Response) => {
         password: hashedPassword,
       },
     });
+
+    // ✅ Токен түзүү
+    const token = generateToken(newUser.id, newUser.email);
+
+    // ✅ Колдонуучуну жана токенди жиберебиз
     res.status(200).json({
       success: true,
-      message: "Катталуу ийгиликтуу!!!",
-      user: newUser,
+      message: "Катталуу ийгиликтүү!!!",
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+      },
+      token, // <-- Мына ушул нерсе frontendге керек
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: `Error in register ${error}` });
+    return res
+      .status(500)
+      .json({ success: false, message: `Error in register ${error}` });
   }
 };
+
 
 
 const login = async (req: Request, res: Response) => {
