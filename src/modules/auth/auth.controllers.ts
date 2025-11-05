@@ -49,8 +49,6 @@ const register = async (req: Request, res: Response) => {
   }
 };
 
-
-
 const login = async (req: Request, res: Response) => {
 try {
   const {email, password} = req.body
@@ -92,7 +90,26 @@ try {
 }
 }
 
+const logOut = async (req: Request, res: Response) => {
+  try {
+    // Эгер токен cookie аркылуу сакталса:
+    res.clearCookie("token");
+
+    res.status(200).json({
+      success: true,
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: `Error in logOut: ${error}`,
+    });
+  }
+};
+
+
 export default {
   register,
-  login
+  login,
+  logOut
 };
