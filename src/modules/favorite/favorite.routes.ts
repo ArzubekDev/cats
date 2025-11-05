@@ -1,5 +1,5 @@
 import { Router } from "express";
-import favoriteControllers from "./favorite.controllers";
+import favoriteControllers from "./favorite.controllers.js";
 
 const router = Router()
 router.get("/:userId/:catId", favoriteControllers.getFavorite);

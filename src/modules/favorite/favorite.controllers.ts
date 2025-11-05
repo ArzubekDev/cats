@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import prisma from "../../config/prisma";
+import prisma from "../../config/prisma.js";
 
 // 🔹 Get Favorite (check if user added this cat)
 const getFavorite = async (req: Request, res: Response) => {
