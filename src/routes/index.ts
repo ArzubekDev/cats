@@ -7,7 +7,7 @@ import cors from "cors"
 const globalRouter: Router = Router()
 
 const corsConfig = {
-    origin: ["http://localhost:3000"]
+    origin: ["http://localhost:3000", "https://cats-fxl9.onrender.com"]
 }
 
 globalRouter.use("/auth", cors(corsConfig), authRoutes)

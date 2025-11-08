@@ -8,7 +8,7 @@ const getFavorite = async (req: Request, res: Response) => {
 
     const fav = await prisma.favorite.findUnique({
       where: {
-        userId_catId: {
+        userId_catId: {  
           userId: Number(userId),
           catId: Number(catId),
         },
