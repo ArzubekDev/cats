@@ -31,48 +31,41 @@ const getFavorite = async (req: Request, res: Response) => {
 };
 
 // 🔹 Post Favorite (add to favorites)
-const postFavorite = async (req: Request, res: Response) => {
+const toggleFavorite = async (req: Request, res: Response) => {
   try {
-    const { catId, userId } = req.params;
+    const { catId } = req.params;
+    const userId = req.userId; // authMiddleware кошкон userId
 
-    // Эгер буга чейин кошулган болсо — кайтат
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
     const existing = await prisma.favorite.findUnique({
       where: {
-        userId_catId: {
-          userId: Number(userId),
-          catId: Number(catId),
-        },
-      },
-      include: {
-        cat: true,
+        userId_catId: { userId: Number(userId), catId: Number(catId) },
       },
     });
 
     if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "Бул мышык мурда эле 'favorite' катары кошулган.",
+      // ✅ Эгер бар болсо өчүр
+      await prisma.favorite.delete({
+        where: {
+          userId_catId: { userId: Number(userId), catId: Number(catId) },
+        },
       });
+      return res.status(200).json({ success: true, favorite: false });
+    } else {
+      // ✅ Эгер жок болсо кош
+      const newFav = await prisma.favorite.create({
+        data: { userId: Number(userId), catId: Number(catId) },
+      });
+      return res.status(201).json({ success: true, favorite: true, favoriteData: newFav });
     }
-
-    const newFav = await prisma.favorite.create({
-      data: {
-        userId: Number(userId),
-        catId: Number(catId),
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      favorite: newFav,
-    });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: `Error in postFavorite: ${error}`,
-    });
+    res.status(500).json({ success: false, error: `Error in toggleFavorite: ${error}` });
   }
 };
+
 
 // 🔹 Delete Favorite (remove from favorites)
 const deleteFavorite = async (req: Request, res: Response) => {
@@ -113,6 +106,6 @@ const deleteFavorite = async (req: Request, res: Response) => {
 
 export default {
   getFavorite,
-  postFavorite,
+  toggleFavorite,
   deleteFavorite,
 };
