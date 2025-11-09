@@ -1,13 +1,37 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prisma.js";
+import { verifyToken } from "../../config/token.js";
 
 const getAllCats = async (req: Request, res: Response) => {
   try {
-    const cats = await prisma.cat.findMany();
+    // 🔹 Токенди карап userId алуу (optional, auth middleware аркылуу)
+    let currentUserId: number | null = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded = verifyToken(token); // { id: string, email: string }
+      currentUserId = Number(decoded.id);
+    }
+
+    const cats = await prisma.cat.findMany({
+      include: {
+        favorites: currentUserId
+          ? {
+              where: { userId: currentUserId },
+            }
+          : false,
+      },
+    });
+
+    // 🔹 favorite талаасын кошуу
+    const catsWithFavorite = cats.map((cat) => ({
+      ...cat,
+      favorite: cat.favorites ? cat.favorites.length > 0 : false,
+    }));
 
     res.status(200).json({
       success: true,
-      cats,
+      cats: catsWithFavorite,
     });
   } catch (error) {
     res.status(500).json({
@@ -16,6 +40,7 @@ const getAllCats = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 const getOneCat = async (req: Request, res: Response) => {
   try {
