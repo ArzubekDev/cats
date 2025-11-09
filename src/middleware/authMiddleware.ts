@@ -12,10 +12,11 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token); 
+    const decoded = verifyToken(token);
 
     (req as any).user = decoded;
-
+    req.userId = Number(decoded.id);
+    
     next();
   } catch (error) {
     console.error("Auth error:", error);
