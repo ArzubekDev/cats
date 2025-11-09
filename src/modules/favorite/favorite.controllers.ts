@@ -14,7 +14,7 @@ const getFavorite = async (req: Request, res: Response) => {
         },
       },
       include: {
-        cat: true, // кааласаң, мышыктын маалыматтарын кошо аласың
+        cat: true,
       },
     });
 
@@ -42,6 +42,9 @@ const postFavorite = async (req: Request, res: Response) => {
           userId: Number(userId),
           catId: Number(catId),
         },
+      },
+      include: {
+        cat: true,
       },
     });
 
@@ -71,16 +74,14 @@ const postFavorite = async (req: Request, res: Response) => {
   }
 };
 
+// 🔹 Delete Favorite (remove from favorites)
 const deleteFavorite = async (req: Request, res: Response) => {
   try {
-    const { catId, userId } = req.params;
+    const { id } = req.params;
 
     const existing = await prisma.favorite.findUnique({
       where: {
-        userId_catId: {
-          userId: Number(userId),
-          catId: Number(catId),
-        },
+        id: Number(id),
       },
     });
 
@@ -93,10 +94,7 @@ const deleteFavorite = async (req: Request, res: Response) => {
 
     await prisma.favorite.delete({
       where: {
-        userId_catId: {
-          userId: Number(userId),
-          catId: Number(catId),
-        },
+        id: Number(id),
       },
     });
 
@@ -112,8 +110,9 @@ const deleteFavorite = async (req: Request, res: Response) => {
   }
 };
 
+
 export default {
   getFavorite,
   postFavorite,
-  deleteFavorite
+  deleteFavorite,
 };
